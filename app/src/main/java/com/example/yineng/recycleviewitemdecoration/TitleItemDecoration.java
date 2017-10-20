@@ -99,40 +99,40 @@ public class TitleItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void onDrawOver(Canvas c, final RecyclerView parent, RecyclerView.State state) {//最后调用 绘制在最上层
         int pos = ((LinearLayoutManager) (parent.getLayoutManager())).findFirstVisibleItemPosition();
+        if (pos!=-1) {
+            String tag = mDatas.get(pos).getTag();
+            //View child = parent.getChildAt(pos);
+            View child = parent.findViewHolderForLayoutPosition(pos).itemView;//出现一个奇怪的bug，有时候child为空，所以将 child = parent.getChildAt(i)。-》 parent.findViewHolderForLayoutPosition(pos).itemView
 
-        String tag = mDatas.get(pos).getTag();
-        //View child = parent.getChildAt(pos);
-        View child = parent.findViewHolderForLayoutPosition(pos).itemView;//出现一个奇怪的bug，有时候child为空，所以将 child = parent.getChildAt(i)。-》 parent.findViewHolderForLayoutPosition(pos).itemView
+            boolean flag = false;//定义一个flag，Canvas是否位移过的标志
+            if ((pos + 1) < mDatas.size()) {//防止数组越界（一般情况不会出现）
+                if (null != tag && !tag.equals(mDatas.get(pos + 1).getTag())) {//当前第一个可见的Item的tag，不等于其后一个item的tag，说明悬浮的View要切换了
+                    Log.d("zxt", "onDrawOver() called with: c = [" + child.getTop());//当getTop开始变负，它的绝对值，是第一个可见的Item移出屏幕的距离，
+                    if (child.getHeight() + child.getTop() < mTitleHeight) {//当第一个可见的item在屏幕中还剩的高度小于title区域的高度时，我们也该开始做悬浮Title的“交换动画”
+                        c.save();//每次绘制前 保存当前Canvas状态，
+                        flag = true;
 
-        boolean flag = false;//定义一个flag，Canvas是否位移过的标志
-        if ((pos + 1) < mDatas.size()) {//防止数组越界（一般情况不会出现）
-            if (null != tag && !tag.equals(mDatas.get(pos + 1).getTag())) {//当前第一个可见的Item的tag，不等于其后一个item的tag，说明悬浮的View要切换了
-                Log.d("zxt", "onDrawOver() called with: c = [" + child.getTop());//当getTop开始变负，它的绝对值，是第一个可见的Item移出屏幕的距离，
-                if (child.getHeight() + child.getTop() < mTitleHeight) {//当第一个可见的item在屏幕中还剩的高度小于title区域的高度时，我们也该开始做悬浮Title的“交换动画”
-                    c.save();//每次绘制前 保存当前Canvas状态，
-                    flag = true;
+                        //一种头部折叠起来的视效，个人觉得也还不错~
+                        //可与123行 c.drawRect 比较，只有bottom参数不一样，由于 child.getHeight() + child.getTop() < mTitleHeight，所以绘制区域是在不断的减小，有种折叠起来的感觉
+                        //c.clipRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), parent.getPaddingTop() + child.getHeight() + child.getTop());
 
-                    //一种头部折叠起来的视效，个人觉得也还不错~
-                    //可与123行 c.drawRect 比较，只有bottom参数不一样，由于 child.getHeight() + child.getTop() < mTitleHeight，所以绘制区域是在不断的减小，有种折叠起来的感觉
-                    //c.clipRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), parent.getPaddingTop() + child.getHeight() + child.getTop());
-
-                    //类似饿了么点餐时,商品列表的悬停头部切换“动画效果”
-                    //上滑时，将canvas上移 （y为负数） ,所以后面canvas 画出来的Rect和Text都上移了，有种切换的“动画”感觉
-                    c.translate(0, child.getHeight() + child.getTop() - mTitleHeight);
+                        //类似饿了么点餐时,商品列表的悬停头部切换“动画效果”
+                        //上滑时，将canvas上移 （y为负数） ,所以后面canvas 画出来的Rect和Text都上移了，有种切换的“动画”感觉
+                        c.translate(0, child.getHeight() + child.getTop() - mTitleHeight);
+                    }
                 }
             }
+            mPaint.setColor(COLOR_TITLE_BG);
+            c.drawRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), parent.getPaddingTop() + mTitleHeight, mPaint);
+            mPaint.setColor(COLOR_TITLE_FONT);
+            mPaint.getTextBounds(tag, 0, tag.length(), mBounds);
+            c.drawText(tag, child.getPaddingLeft(),
+                    parent.getPaddingTop() + mTitleHeight - (mTitleHeight / 2 - mBounds.height() / 2),
+                    mPaint);
+            if (flag)
+                c.restore();//恢复画布到之前保存的状态
+
         }
-        mPaint.setColor(COLOR_TITLE_BG);
-        c.drawRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getRight() - parent.getPaddingRight(), parent.getPaddingTop() + mTitleHeight, mPaint);
-        mPaint.setColor(COLOR_TITLE_FONT);
-        mPaint.getTextBounds(tag, 0, tag.length(), mBounds);
-        c.drawText(tag, child.getPaddingLeft(),
-                parent.getPaddingTop() + mTitleHeight - (mTitleHeight / 2 - mBounds.height() / 2),
-                mPaint);
-        if (flag)
-            c.restore();//恢复画布到之前保存的状态
-
-
 /*        Button button = new Button(parent.getContext());
         button.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -13,9 +14,9 @@ public class MainActivity extends Activity {
 
     private static final String TAG = "zxt";
     private RecyclerView mRv;
-    private RecyclerView.Adapter mAdapter;
+    private CityAdapter mAdapter;
     private LinearLayoutManager mManager;
-    private List<CityBean> mDatas;
+    private List<CityBean> mDatas = new ArrayList<>();;
 
     private TitleItemDecoration mDecoration;
 
@@ -41,19 +42,20 @@ public class MainActivity extends Activity {
         mRv.setLayoutManager(mManager = new LinearLayoutManager(this));
         //initDatas();
         initDatas(getResources().getStringArray(R.array.provinces));
-        mRv.setAdapter(mAdapter = new CityAdapter(this, mDatas));
+        mAdapter = new CityAdapter(this, mDatas);
+        mRv.setAdapter(mAdapter);
         mRv.addItemDecoration(mDecoration = new TitleItemDecoration(this, mDatas));
         //如果add两个，那么按照先后顺序，依次渲染。
         //mRv.addItemDecoration(new TitleItemDecoration2(this,mDatas));
         mRv.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL_LIST));
 
         //使用indexBar
-        mTvSideBarHint = (TextView) findViewById(R.id.tvSideBarHint);//HintTextView
-        mIndexBar = (IndexBar) findViewById(R.id.indexBar);//IndexBar
-        mIndexBar.setmPressedShowTextView(mTvSideBarHint)//设置HintTextView
-                .setNeedRealIndex(true)//设置需要真实的索引
-                .setmLayoutManager(mManager)//设置RecyclerView的LayoutManager
-                .setmSourceDatas(mDatas);//设置数据源
+//        mTvSideBarHint = (TextView) findViewById(R.id.tvSideBarHint);//HintTextView
+//        mIndexBar = (IndexBar) findViewById(R.id.indexBar);//IndexBar
+//        mIndexBar.setmPressedShowTextView(mTvSideBarHint)//设置HintTextView
+//                .setNeedRealIndex(true)//设置需要真实的索引
+//                .setmLayoutManager(mManager)//设置RecyclerView的LayoutManager
+//                .setmSourceDatas(mDatas);//设置数据源
 
     }
 
@@ -68,8 +70,20 @@ public class MainActivity extends Activity {
         for (int i = 0; i < data.length; i++) {
             CityBean cityBean = new CityBean();
             cityBean.setCity(data[i]);//设置城市名称
+            cityBean.setTag(data[i]);
             mDatas.add(cityBean);
         }
     }
 
+    public void button(View view) {
+
+        initDatas(getResources().getStringArray(R.array.change));
+        mAdapter = new CityAdapter(this, mDatas);
+        mRv.setAdapter(mAdapter);
+        mRv.removeItemDecoration(mDecoration);
+        mRv.addItemDecoration(mDecoration = new TitleItemDecoration(this, mDatas));
+        //如果add两个，那么按照先后顺序，依次渲染。
+        //mRv.addItemDecoration(new TitleItemDecoration2(this,mDatas));
+        mRv.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL_LIST));
+    }
 }

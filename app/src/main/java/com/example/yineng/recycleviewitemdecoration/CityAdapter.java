@@ -43,12 +43,16 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
         });
     }
 
+    public void setData( List<CityBean> data){
+        this.mDatas = data;
+    }
+
     @Override
     public int getItemCount() {
         return mDatas != null ? mDatas.size() : 0;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvCity;
 
         public ViewHolder(View itemView) {
